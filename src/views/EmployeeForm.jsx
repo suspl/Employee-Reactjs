@@ -66,6 +66,9 @@ class EmployeeForm extends Component {
       employeeid:"",
       bloodgroup:"",
       gender:"",
+      Emergencycontactname:"",
+      Emergencycontactnumber:"",
+      Emergencycontactrelationship:"",
       resignationdate:null,
       leavingdate:null,
       value: 'dddddd',
@@ -143,6 +146,9 @@ class EmployeeForm extends Component {
                 personalEmailId 
                 bloodGroup 
                 gender
+                EmergencyContactName
+                EmergencyContactNumber
+                EmergencyContactRelationship
                 Active
               }
             }
@@ -186,7 +192,7 @@ class EmployeeForm extends Component {
             dob:this.state.userDetails.DOB?new Date(this.state.userDetails.DOB):new Date(),
             n_dob:this.state.userDetails.DOB?new Date(this.state.userDetails.DOB):new Date(),
             companyid:this.state.userDetails.CompanyID?this.state.userDetails.CompanyID:'',
-            //department:this.state.userDetails.Department?this.state.userDetails.Department:'',
+            department:this.state.userDetails.Department?this.state.userDetails.Department:'',
             businesstitle:this.state.userDetails.BusinessTitle?this.state.userDetails.BusinessTitle:'',
             reportingperson:this.state.userDetails.ReportingPerson?this.state.userDetails.ReportingPerson:'',
             employmentType:this.state.userDetails.EmploymentType?this.state.userDetails.EmploymentType:'',
@@ -209,6 +215,9 @@ class EmployeeForm extends Component {
             n_resignationdate:this.state.userDetails.ResignationDate?new Date(this.state.userDetails.ResignationDate):new Date(),
             leavingdate:this.state.userDetails.LeavingDate?new Date(this.state.userDetails.LeavingDate):new Date(),
             n_leavingdate:this.state.userDetails.LeavingDate?new Date(this.state.userDetails.LeavingDate):new Date(),
+            Emergencycontactname:this.state.userDetails.EmergencyContactName?this.state.userDetails.EmergencyContactName:'',
+            Emergencycontactnumber:this.state.userDetails.EmergencyContactNumber?this.state.userDetails.EmergencyContactNumber:'',
+            Emergencycontactrelationship:this.state.userDetails.EmergencyContactRelationship?this.state.userDetails.EmergencyContactRelationship:''
             
           });
           updateId[0]=0;
@@ -347,17 +356,17 @@ class EmployeeForm extends Component {
     this.state.configDetails.filter(data=>{
      if(data.BusinessTitle == current_Desgination && data.DepID == this.state.department){
        Des_Level=data.Level;
-       //console.log("Des_Level=="+Des_Level);
+       console.log("Des_Level=="+Des_Level);
       // console.log(this.state.department);
-       this.state.configDetails.filter(configdata=>{
+       this.state.configDetails.map(configdata=>{
          if(this.state.department == configdata.DepID && configdata.Level<Des_Level)
          {
-          // console.log("new Des=="+configdata.BusinessTitle);
+           console.log("new Des=="+configdata.BusinessTitle);
            this.state.items.filter(item=>
             {
               if(item.Department == this.state.department && item.BusinessTitle == configdata.BusinessTitle)
               {
-                //console.log("Name=="+item);
+                console.log("Name=="+item);
                 //return item;
                 reportingPL.push(item);
               }
@@ -365,11 +374,11 @@ class EmployeeForm extends Component {
             
          }
        });
-      
+       console.log(reportingPL);
      }
     });
     //console.log("reportingPL=");
-    //console.log(reportingPL);
+    
     this.setState({
               reportingpersonDetails:reportingPL
             });
@@ -543,6 +552,9 @@ class EmployeeForm extends Component {
             gender:this.state.gender,
             ResignationDate:this.state.n_resignationdate?this.state.n_resignationdate:new Date(),
             LeavingDate:this.state.n_leavingdate?this.state.n_leavingdate:new Date(),
+            EmergencyContactName:this.state.Emergencycontactname,
+            EmergencyContactNumber:this.state.Emergencycontactnumber,
+            EmergencyContactRelationship:this.state.Emergencycontactrelationship,
             Active:"Yes"
     };
     const requestBody = {
@@ -552,7 +564,9 @@ class EmployeeForm extends Component {
             , $JoiningDate: String!, $BusinessTitle: String!, $MobileNo: String!, $AlternateContactNo: String!, $PAN: String!
             , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $JobBand: String!, $EmploymentType: String!
             , $CompanyID: String!, $LeavingDate: String!, $ResignationDate: String!, $ReportingPerson: String,
-             $email: String!,$personalEmailId: String!,$bloodGroup: String!,$gender: String!,$Active: String!) 
+             $email: String!,$personalEmailId: String!,$bloodGroup: String!,$gender: String!,
+             $EmergencyContactName: String!, $EmergencyContactNumber: String!,
+             $EmergencyContactRelationship: String!, $Active: String!) 
           {
             addEmpDetails(empInput: {EmpID: $EmpID, FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
               , Initials: $Initials, FatherName: $FatherName, SpouseName: $SpouseName, DOB: $DOB, Department: $Department
@@ -560,7 +574,8 @@ class EmployeeForm extends Component {
               , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo
               , JobBand: $JobBand, EmploymentType: $EmploymentType, CompanyID: $CompanyID, LeavingDate: $LeavingDate
               , ResignationDate: $ResignationDate, ReportingPerson: $ReportingPerson, email: $email, personalEmailId: $personalEmailId
-              , bloodGroup: $bloodGroup, gender: $gender, Active: $Active}) {
+              , bloodGroup: $bloodGroup, gender: $gender, EmergencyContactName: $EmergencyContactName
+              , EmergencyContactNumber: $EmergencyContactNumber, EmergencyContactRelationship: $EmergencyContactRelationship,Active: $Active}) {
               _id
              
             }
@@ -614,6 +629,9 @@ class EmployeeForm extends Component {
                 resignationdate:new Date(),
                 n_leavingdate:"",
                 leavingdate:new Date(),
+                Emergencycontactname:"",
+                Emergencycontactnumber:"",
+                Emergencycontactrelationship:"",
                 Id:"",
                 selectedOption:null});
               this.getAllUserDetails();
@@ -664,33 +682,39 @@ class EmployeeForm extends Component {
           gender:this.state.gender,
           ResignationDate:this.state.n_resignationdate?this.state.n_resignationdate:new Date(),
           LeavingDate:this.state.n_leavingdate?this.state.n_leavingdate:new Date(),
+          EmergencyContactName:this.state.Emergencycontactname,
+          EmergencyContactNumber:this.state.Emergencycontactnumber,
+          EmergencyContactRelationship:this.state.Emergencycontactrelationship,
           Active:"Yes"
   };
   console.log("Uid--"+this.state.userDetails._id);
   myobj["id"] = this.state.userDetails._id;
   const requestBody = {
-  query: `
-      mutation UpdateEmpDetailsById($id: ID!, $EmpID: String!, $FirstName: String!, $MiddleName: String, $LastName: String, 
-        $Initials: String, $FatherName: String, $SpouseName: String, $DOB: String!, $Department: String!,
-        , $JoiningDate: String!, $BusinessTitle: String!, $MobileNo: String!, $AlternateContactNo: String!, $PAN: String!
-        , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $JobBand: String!, $EmploymentType: String!
-        , $CompanyID: String!, $LeavingDate: String!, $ResignationDate: String!, $ReportingPerson: String,
-        $email: String!,$personalEmailId: String!,$bloodGroup: String!,$gender: String!,$Active: String!) 
-      {
-        updateEmpDetailsById(Id:$id,empInput: {EmpID: $EmpID, FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
-          , Initials: $Initials, FatherName: $FatherName, SpouseName: $SpouseName, DOB: $DOB, Department: $Department
-          , JoiningDate: $JoiningDate, BusinessTitle: $BusinessTitle, MobileNo: $MobileNo, AlternateContactNo: $AlternateContactNo
-          , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo
-          , JobBand: $JobBand, EmploymentType: $EmploymentType, CompanyID: $CompanyID, LeavingDate: $LeavingDate
-          , ResignationDate: $ResignationDate, ReportingPerson: $ReportingPerson, email: $email, personalEmailId: $personalEmailId
-          , bloodGroup: $bloodGroup, gender: $gender, Active: $Active}) {
-          _id
-        
+    query: `
+        mutation UpdateEmpDetailsById($id: ID!, $EmpID: String!, $FirstName: String!, $MiddleName: String, $LastName: String, 
+          $Initials: String, $FatherName: String, $SpouseName: String, $DOB: String!, $Department: String!,
+          , $JoiningDate: String!, $BusinessTitle: String!, $MobileNo: String!, $AlternateContactNo: String!, $PAN: String!
+          , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $JobBand: String!, $EmploymentType: String!
+          , $CompanyID: String!, $LeavingDate: String!, $ResignationDate: String!, $ReportingPerson: String,
+          $email: String!,$personalEmailId: String!,$bloodGroup: String!,$gender: String!,
+          $EmergencyContactName: String!, $EmergencyContactNumber: String!,
+               $EmergencyContactRelationship: String!, $Active: String!) 
+        {
+          updateEmpDetailsById(Id:$id,empInput: {EmpID: $EmpID, FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
+            , Initials: $Initials, FatherName: $FatherName, SpouseName: $SpouseName, DOB: $DOB, Department: $Department
+            , JoiningDate: $JoiningDate, BusinessTitle: $BusinessTitle, MobileNo: $MobileNo, AlternateContactNo: $AlternateContactNo
+            , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo
+            , JobBand: $JobBand, EmploymentType: $EmploymentType, CompanyID: $CompanyID, LeavingDate: $LeavingDate
+            , ResignationDate: $ResignationDate, ReportingPerson: $ReportingPerson, email: $email, personalEmailId: $personalEmailId
+            , bloodGroup: $bloodGroup, gender: $gender, EmergencyContactName: $EmergencyContactName, EmergencyContactNumber: $EmergencyContactNumber
+            , EmergencyContactRelationship: $EmergencyContactRelationship, Active: $Active}) {
+            _id
+          
+          }
         }
-      }
-    `,
-    variables:myobj
-  };
+      `,
+      variables:myobj
+    };
 
   fetch(nodeAPI+'/graphql', {
   method: 'POST',
@@ -736,6 +760,9 @@ class EmployeeForm extends Component {
           resignationdate:new Date(),
           n_leavingdate:"",
           leavingdate:new Date(),
+          Emergencycontactname:"",
+          Emergencycontactnumber:"",
+          Emergencycontactrelationship:"",
           Id:"",
           updateProfile:false,
           selectedOption:null
@@ -793,6 +820,9 @@ class EmployeeForm extends Component {
                 personalEmailId 
                 bloodGroup 
                 gender
+                EmergencyContactName
+                EmergencyContactNumber
+                EmergencyContactRelationship
                 Active
               }
             }
@@ -820,7 +850,8 @@ class EmployeeForm extends Component {
           const EmpDetails = json.data.getEmpDetailsById;
           console.log(EmpDetails);
           this.setState({
-            userDetails:EmpDetails
+            userDetails:EmpDetails,
+            department:EmpDetails.Department?EmpDetails.Department:'',
           });
           console.log(this.state.userDetails.FirstName);
           this.fetchReportingPerson(this.state.userDetails.BusinessTitle);
@@ -856,7 +887,10 @@ class EmployeeForm extends Component {
             resignationdate:this.state.userDetails.ResignationDate?new Date(this.state.userDetails.ResignationDate):new Date(),
             n_resignationdate:this.state.userDetails.ResignationDate?new Date(this.state.userDetails.ResignationDate):new Date(),
             leavingdate:this.state.userDetails.LeavingDate?new Date(this.state.userDetails.LeavingDate):new Date(),
-            n_leavingdate:this.state.userDetails.LeavingDate?new Date(this.state.userDetails.LeavingDate):new Date()
+            n_leavingdate:this.state.userDetails.LeavingDate?new Date(this.state.userDetails.LeavingDate):new Date(),
+            Emergencycontactname:this.state.userDetails.EmergencyContactName?this.state.userDetails.EmergencyContactName:'',
+            Emergencycontactnumber:this.state.userDetails.EmergencyContactNumber?this.state.userDetails.EmergencyContactNumber:'',
+            Emergencycontactrelationship:this.state.userDetails.EmergencyContactRelationship?this.state.userDetails.EmergencyContactRelationship:'',
           });
           updateId[0]=0;
           console.log("items=="+this.state.userDetails,this.state.userDetails.FirstName,this.state.userDetails.LastName);
@@ -898,6 +932,9 @@ class EmployeeForm extends Component {
         resignationdate:new Date(),
         n_leavingdate:"",
         leavingdate:new Date(),
+        Emergencycontactname:"",
+        Emergencycontactnumber:"",
+        Emergencycontactrelationship:"",
         Id:"",
         updateProfile:false
       });
@@ -1150,6 +1187,42 @@ class EmployeeForm extends Component {
       errors["gender"] = "*Please select Gender.";
     }
 
+    // ------------------------------------------------------------
+    if (!this.state.Emergencycontactname) {
+      formIsValid = false;
+      errors["Emergencycontactname"] = "*Please enter Emergency contact name.";
+    }
+
+    if (this.state.Emergencycontactname != "") {
+      if (!this.state.Emergencycontactname.match(/^[a-zA-Z]*$/)) {
+        formIsValid = false;
+        errors["Emergencycontactname"] = "*Please enter alphabet characters only.";
+      }
+    }
+
+    if (!this.state.Emergencycontactrelationship) {
+      formIsValid = false;
+      errors["Emergencycontactrelationship"] = "*Please enter Emergency contact relationship.";
+    }
+
+    if (this.state.Emergencycontactrelationship != "") {
+      if (!this.state.Emergencycontactrelationship.match(/^[a-zA-Z]*$/)) {
+        formIsValid = false;
+        errors["Emergencycontactrelationship"] = "*Please enter alphabet characters only.";
+      }
+    }
+
+    if (!this.state.Emergencycontactnumber) {
+      formIsValid = false;
+      errors["Emergencycontactnumber"] = "*Please enter Emergency contact number.";
+    }
+
+    if (this.state.Emergencycontactnumber != "") {
+      if (!this.state.Emergencycontactnumber.match(/^[0-9]{10}$/)) {
+        formIsValid = false;
+        errors["Emergencycontactnumber"] = "*Please enter valid Emergency contact number.";
+      }
+    }
     // if (!this.state.resignationdate) {
     //   formIsValid = false;
     //   errors["resignationdate"] = "*Please enter Resignation Date.";
@@ -1444,7 +1517,21 @@ class EmployeeForm extends Component {
                         <div className="errorMsg">{this.state.errors.leavingdate}</div>
                      </div>
                    </div>
-                   
+                   <hr></hr>
+                   <div className="row">
+                   <div className="col-md-3"><label>Emergency Contact Name:</label>
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Emergencycontactname" value={this.state.Emergencycontactname}  onChange={this.handleInputChange} />
+                        <div className="errorMsg">{this.state.errors.Emergencycontactname}</div>
+                     </div>
+                     <div className="col-md-3"><label>Emergency Contact Number:</label>
+                        <input type="text" autoComplete="off" className="form-control" name="Emergencycontactnumber" value={this.state.Emergencycontactnumber}  onChange={this.handleInputChange} />
+                        <div className="errorMsg">{this.state.errors.Emergencycontactnumber}</div>
+                     </div>
+                     <div className="col-md-3"><label>Emergency Contact Relationship:</label>
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Emergencycontactrelationship" value={this.state.Emergencycontactrelationship}  onChange={this.handleInputChange} />
+                        <div className="errorMsg">{this.state.errors.Emergencycontactrelationship}</div>
+                     </div>
+                   </div>
                    
                    {/* <Button bsStyle="info"  fill  onClick={this.submitFunction}>
                       Save Profile
