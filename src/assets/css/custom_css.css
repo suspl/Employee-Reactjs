@@ -1,0 +1,25 @@
+
+.Capitalize_class{
+   text-transform: capitalize;
+ }
+
+.Uppercase_class{
+  text-transform: uppercase; 
+}
+ 
+ /* label {
+font-family: 'Roboto Medium', sans-serif;
+font-size: 16px;
+color: #000;
+font-weight: 900;
+} */
+
+.errorMsg {
+  color: red;
+  margin-bottom: 12px;
+}
+
+.sucessMsg {
+  color: #6B8E23;
+  margin-bottom: 10px;
+}
