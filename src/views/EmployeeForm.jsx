@@ -103,7 +103,10 @@ class EmployeeForm extends Component {
   componentDidMount(){
     console.log("updateId11111111="+updateId[0]);
 
-    
+    if(this.props.match.params.id!=undefined){
+      // this.state.Id = updateId[0];
+       this.state.Id = this.props.match.params.id;
+     }
 
     this.getAllUserDetails();
     this.getAllConfigDetails();
@@ -1280,6 +1283,7 @@ class EmployeeForm extends Component {
                 title="Employees Details:"
                 content={
                   <form>
+                    
                     <div className="row">
                      
                      {/* <div className="col-md-3"> 

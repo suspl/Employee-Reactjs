@@ -18,14 +18,24 @@ const dashboardRoutes = [
     name: "Employee List",
     icon: "pe-7s-note2",
     component: TableList,
-    layout: "/admin"
+    layout: "/admin",
+    display:"yes"
+  },
+  {
+    path: "/employeeDetail/:id",
+    name: "Employee Detail",
+    icon: "pe-7s-user",
+    component: EmployeeForm,
+    layout: "/admin",
+    display:"no"
   },
   {
     path: "/employeeDetail",
     name: "Employee Detail",
     icon: "pe-7s-user",
     component: EmployeeForm,
-    layout: "/admin"
+    layout: "/admin",
+    display:"yes"
   }
   // {
   //   path: "/dashboard",

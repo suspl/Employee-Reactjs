@@ -122,7 +122,9 @@ class TableList extends Component {
     updateId[0] = event.target.id;
     console.log("updateId="+updateId[0]);
     let path = `/admin/employeeDetail`;
-    this.props.history.push(path);
+    this.props.history.push(path); 
+    // let path = `/admin/employeeDetail`+event.target.id;
+    // this.props.history.push(path);
   }
   
   deleteProfileFun(event)
