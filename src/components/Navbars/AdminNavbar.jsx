@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Navbar } from "react-bootstrap";
 
 import AdminNavbarLinks from "./AdminNavbarLinks.jsx";
+import "assets/css/custom_css.css";
 
 class Header extends Component {
   constructor(props) {
@@ -30,7 +31,7 @@ class Header extends Component {
   }
   render() {
     return (
-      <Navbar fluid>
+      <Navbar fluid className="navbackcolor">
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#pablo">{this.props.brandText}</a>

@@ -13,7 +13,23 @@ font-size: 16px;
 color: #000;
 font-weight: 900;
 } */
-
+.mainpanelbackcolor{
+  background-color: #4a4444;
+}
+.navbackcolor{
+  background-color: rgb(60, 60, 60);
+}
+.navbar-default .navbar-brand {
+  color: #f5f3f3; 
+  /* background-color: transparent; */
+}
+.navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
+  color: #1DC7EA; 
+  /* background-color: transparent; */
+}
+.navbar-default .navbar-nav > li > a:not(.btn) {
+  color: #f5f0f0;
+}
 .errorMsg {
   color: red;
   margin-bottom: 12px;
@@ -22,4 +38,53 @@ font-weight: 900;
 .sucessMsg {
   color: #6B8E23;
   margin-bottom: 10px;
+}
+
+.table > thead > tr > th {
+  border-bottom-width: 1px;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #1b1a1a;
+  font-weight: 600;
+  padding-bottom: 5px;
+}
+
+.card .category, .card label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b1a1a;
+  margin-bottom: 0px;
+  text-transform: uppercase;
+}
+.card .title {
+  margin: 0;
+  color: #101010;
+  font-weight: 600;
+}
+
+.form-control {
+  background-color: #FFFFFF;
+  border: 1px solid #bdb9b9;
+  border-radius: 4px;
+  color: #565656;
+  padding: 8px 12px;
+  height: 40px;
+  box-shadow: none;
+}
+
+.footer {
+  background-color: #3c3c3c;
+  line-height: 20px;
+}
+
+.main-panel > .footer {
+  border-top: 1px solid #484444;
+}
+
+.footer .copyright {
+  color: #f1eaea;
+  padding: 10px 15px;
+  margin: 10px 3px;
+  line-height: 20px;
+  font-size: 14px;
 }

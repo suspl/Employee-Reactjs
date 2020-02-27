@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "react-bootstrap";
 import { thArray} from "variables/Variables.jsx";
+import "assets/css/custom_css.css";
 
 class TableComp extends Component {
     constructor(props)

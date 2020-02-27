@@ -18,7 +18,8 @@ class TableList extends Component {
     this.state={
       items:[],
       tdarr1:[],
-      gotData:false
+      gotData:false,
+      hideitems:{}
     };
     
     this.getAllUserDetails = this.getAllUserDetails.bind(this);
@@ -32,7 +33,30 @@ class TableList extends Component {
   {
    // console.log("updateId="+updateId);
    // this.getAllUserDetails();
-   console.log("nodeAPI="+nodeAPI);
+     console.log("nodeAPI="+nodeAPI);
+     //-------------
+    //  let appRole = "superUser";
+    //  localStorage.setItem('appRole',appRole);
+    //  if(appRole!="superUser"){
+    //   let hideItems = {};
+    //   let mc = ["newProfileBtn"];
+    //   mc.map(data=>{
+    //   hideItems[data] = true;
+    //   });
+    //   this.setState({hideitems:hideItems});
+    //  }
+     let Dep_name = "HR";
+     localStorage.setItem('Dep_name',Dep_name);
+     if(Dep_name!="HR"){
+      let hideItems = {};
+      let mc = ["newProfileBtn"];
+      mc.map(data=>{
+      hideItems[data] = true;
+      });
+      this.setState({hideitems:hideItems});
+     }
+     
+     //--------------
   }
   //componentWillMount()//called before render method
   //{
@@ -120,11 +144,16 @@ class TableList extends Component {
     //console.log("updateId="+updateId,this.updateId);
    // updateId.push(event.target.id);
     updateId[0] = event.target.id;
-    console.log("updateId="+updateId[0]);
-    let path = `/admin/employeeDetail`;
-    this.props.history.push(path); 
-    // let path = `/admin/employeeDetail`+event.target.id;
-    // this.props.history.push(path);
+   // localStorage.setItem('EmpID',String(event.target.id));
+    //localStorage.removeItem('EmpID');
+    //localStorage.clear();
+    //console.log("ee="+localStorage.getItem('EmpID'));
+
+    // console.log("updateId="+updateId[0]);
+    // let path = `/admin/employeeDetail`;
+    // this.props.history.push(path); 
+    let path = `/admin/employeeDetail/`+event.target.id;
+    this.props.history.push(path);
   }
   
   deleteProfileFun(event)
@@ -163,6 +192,7 @@ class TableList extends Component {
   render() {
     console.log("render");
     let temptable;
+    var classname="hidden";
     //console.log("arr11="+this.state.tdarr1);
     if(this.state.gotData==true){
       temptable = <TableComp tdArray1={this.state.tdarr1} name="ss"/>
@@ -171,7 +201,7 @@ class TableList extends Component {
       <div className="content">
         <Grid fluid>
           <Row>
-            <Col md={12}>
+            <Col md={12} className={this.state.hideitems.newProfileBtn?classname:""}>
               {/* <Card
               content={ */}
                   <Button bsStyle="info"  fill  onClick={this.createNewProfile}>

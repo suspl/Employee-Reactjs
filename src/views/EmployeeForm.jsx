@@ -1,5 +1,6 @@
 
 import React, { Component } from "react";
+import ReactDOM from "react-dom";
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
@@ -60,6 +61,7 @@ class EmployeeForm extends Component {
       aadhernumber:"",
       uannumber:"",
       passportnumber:"",
+      esi:"",
       employeeactive:"",
       companyemail:"",
       personalemail:"",
@@ -83,7 +85,13 @@ class EmployeeForm extends Component {
       current_Desgination :"",
       reportingpersonDetails:[],
       errors: {},
-      selectedOption:null
+      selectedOption:null,
+      hideitems:{},
+      disable_state:false,
+      shift:'',
+      Bankname:'',
+      Bankaccountnumber:'',
+      IFSCcode:''
     };
 
     
@@ -101,21 +109,50 @@ class EmployeeForm extends Component {
   
 
   componentDidMount(){
-    console.log("updateId11111111="+updateId[0]);
+    //------
+    //let appRole = "superUser";
+    // let appRole = localStorage.getItem('appRole');
+    // if(appRole!="superUser"){
+    //   let hideItems = {};
+    //   let mc = ["emplist","updateProBtn"];
+    //   mc.map(data=>{
+    //   hideItems[data] = true;
+    //   });
+    //   this.setState({hideitems:hideItems});
+    // }
 
-    if(this.props.match.params.id!=undefined){
-      // this.state.Id = updateId[0];
-       this.state.Id = this.props.match.params.id;
+     //let Dep_name = "IT";
+     let Dep_name = localStorage.getItem('Dep_name');
+     if(Dep_name!="HR"){
+      let hideItems = {};
+      let mc = ["emplist","updateProBtn","saveProBtn"];
+      mc.map(data=>{
+      hideItems[data] = true;
+      });
+      this.setState({hideitems:hideItems,
+        disable_state:true});
      }
+
+    //-------
+    console.log("updateId11111111="+updateId[0]);
+    let emp_ID = localStorage.getItem('EmpID')  ;
+    console.log("emp_ID==",+localStorage.getItem('EmpID'));
+    // if(this.props.match.params.id!=undefined){
+    //   // this.state.Id = updateId[0];
+    //   //  this.state.Id = this.props.match.params.id;
+    //    this.setState({Id:this.props.match.params.id});
+    //  }
 
     this.getAllUserDetails();
     this.getAllConfigDetails();
     //==============
-    if(updateId[0]!=0)
+    //if(updateId[0]!=0)
+    if(this.props.match.params.id!=undefined)
     {
       this.setState({updateProfile:true});
-      this.setState({Id:updateId[0]});
-      console.log("updateId22222="+updateId[0]);
+      //this.setState({Id:updateId[0]});
+      this.setState({Id:this.props.match.params.id});
+      console.log("updateId22222="+this.props.match.params.id);
       
       const requestBody = {
         query: `
@@ -139,6 +176,7 @@ class EmployeeForm extends Component {
                 AADHAAR
                 PF_UAN
                 PassportNo
+                ESI
                 JobBand
                 EmploymentType
                 CompanyID
@@ -153,11 +191,16 @@ class EmployeeForm extends Component {
                 EmergencyContactNumber
                 EmergencyContactRelationship
                 Active
+                BankName
+                BankAccountNumber
+                IFSCCode
+                Shift
+                
               }
             }
           `,
         variables: {
-          id: updateId[0]
+          id: this.props.match.params.id
         }
       };
       
@@ -208,6 +251,7 @@ class EmployeeForm extends Component {
             aadhernumber:this.state.userDetails.AADHAAR?this.state.userDetails.AADHAAR:'',
             uannumber:this.state.userDetails.PF_UAN?this.state.userDetails.PF_UAN:'',
             passportnumber:this.state.userDetails.PassportNo?this.state.userDetails.PassportNo:'',
+            esi:this.state.userDetails.ESI?this.state.userDetails.ESI:'',
             employeeactive:this.state.userDetails.Active?this.state.userDetails.Active:'',
             companyemail:this.state.userDetails.email?this.state.userDetails.email:'',
             personalemail:this.state.userDetails.personalEmailId?this.state.userDetails.personalEmailId:'',
@@ -220,8 +264,12 @@ class EmployeeForm extends Component {
             n_leavingdate:this.state.userDetails.LeavingDate?new Date(this.state.userDetails.LeavingDate):new Date(),
             Emergencycontactname:this.state.userDetails.EmergencyContactName?this.state.userDetails.EmergencyContactName:'',
             Emergencycontactnumber:this.state.userDetails.EmergencyContactNumber?this.state.userDetails.EmergencyContactNumber:'',
-            Emergencycontactrelationship:this.state.userDetails.EmergencyContactRelationship?this.state.userDetails.EmergencyContactRelationship:''
-            
+            Emergencycontactrelationship:this.state.userDetails.EmergencyContactRelationship?this.state.userDetails.EmergencyContactRelationship:'',
+            Bankname:this.state.userDetails.BankName?this.state.userDetails.BankName:'',
+            Bankaccountnumber:this.state.userDetails.BankAccountNumber?this.state.userDetails.BankAccountNumber:'',
+            IFSCcode:this.state.userDetails.IFSCCode?this.state.userDetails.IFSCCode:'',
+            shift:this.state.userDetails.Shift?this.state.userDetails.Shift:''
+
           });
           updateId[0]=0;
           console.log("items=="+this.state.userDetails,this.state.userDetails.FirstName,this.state.userDetails.LastName);
@@ -418,6 +466,7 @@ class EmployeeForm extends Component {
     }
   };
   handleDateChange3 = (date) => {
+    console.log("resignationdate="+this.state.resignationdate);
     if(date!=null){
       var n_date = (date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
       this.setState({
@@ -429,6 +478,12 @@ class EmployeeForm extends Component {
       });
       console.log("n_date="+n_date);
     }
+    else{
+      this.setState({
+        resignationdate: null
+      });
+    }
+   
   };
 
   handleDateChange4 = (date) => {
@@ -547,10 +602,11 @@ class EmployeeForm extends Component {
             AADHAAR:this.state.aadhernumber,
             PF_UAN:this.state.uannumber,
             PassportNo:this.state.passportnumber,
+            ESI:this.state.esi,
             Active:this.state.employeeactive,
             email:this.state.companyemail,
             personalEmailId:this.state.personalemail,
-            EmpID:this.state.employeeid,
+           // EmpID:this.state.employeeid,
             bloodGroup:this.state.bloodgroup,
             gender:this.state.gender,
             ResignationDate:this.state.n_resignationdate?this.state.n_resignationdate:new Date(),
@@ -558,27 +614,36 @@ class EmployeeForm extends Component {
             EmergencyContactName:this.state.Emergencycontactname,
             EmergencyContactNumber:this.state.Emergencycontactnumber,
             EmergencyContactRelationship:this.state.Emergencycontactrelationship,
-            Active:"Yes"
+            BankName:this.state.Bankname,
+            BankAccountNumber:this.state.Bankaccountnumber,
+            IFSCCode:this.state.IFSCcode,
+            Shift:this.state.shift,
+            Active:"Yes",
+            CreatedBy:"subha",
+            CreatedDateTime:new Date()
     };
     const requestBody = {
       query: `
-          mutation AddEmpDetails($EmpID: String!, $FirstName: String!, $MiddleName: String, $LastName: String, 
+          mutation AddEmpDetails($FirstName: String!, $MiddleName: String, $LastName: String, 
             $Initials: String, $FatherName: String, $SpouseName: String, $DOB: String!, $Department: String!,
             , $JoiningDate: String!, $BusinessTitle: String!, $MobileNo: String!, $AlternateContactNo: String!, $PAN: String!
-            , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $JobBand: String!, $EmploymentType: String!
+            , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $ESI:String,$JobBand: String!, $EmploymentType: String!
             , $CompanyID: String!, $LeavingDate: String!, $ResignationDate: String!, $ReportingPerson: String,
              $email: String!,$personalEmailId: String!,$bloodGroup: String!,$gender: String!,
              $EmergencyContactName: String!, $EmergencyContactNumber: String!,
-             $EmergencyContactRelationship: String!, $Active: String!) 
+             $EmergencyContactRelationship: String!, $Active: String!,$CreatedBy:String,$CreatedDateTime:String,
+             $BankName: String!,$BankAccountNumber: String!,$IFSCCode: String!,$Shift: String!) 
           {
-            addEmpDetails(empInput: {EmpID: $EmpID, FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
+            addEmpDetails(empInput: {FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
               , Initials: $Initials, FatherName: $FatherName, SpouseName: $SpouseName, DOB: $DOB, Department: $Department
               , JoiningDate: $JoiningDate, BusinessTitle: $BusinessTitle, MobileNo: $MobileNo, AlternateContactNo: $AlternateContactNo
-              , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo
+              , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo,ESI:$ESI,
               , JobBand: $JobBand, EmploymentType: $EmploymentType, CompanyID: $CompanyID, LeavingDate: $LeavingDate
               , ResignationDate: $ResignationDate, ReportingPerson: $ReportingPerson, email: $email, personalEmailId: $personalEmailId
               , bloodGroup: $bloodGroup, gender: $gender, EmergencyContactName: $EmergencyContactName
-              , EmergencyContactNumber: $EmergencyContactNumber, EmergencyContactRelationship: $EmergencyContactRelationship,Active: $Active}) {
+              , EmergencyContactNumber: $EmergencyContactNumber, EmergencyContactRelationship: $EmergencyContactRelationship
+              ,Active: $Active,CreatedBy:$CreatedBy,CreatedDateTime:$CreatedDateTime
+              ,BankName: $BankName,BankAccountNumber: $BankAccountNumber,IFSCCode: $IFSCCode,Shift: $Shift}) {
               _id
              
             }
@@ -622,6 +687,7 @@ class EmployeeForm extends Component {
                 aadhernumber:"",
                 uannumber:"",
                 passportnumber:"",
+                esi:"",
                 employeeactive:"",
                 companyemail:"",
                 personalemail:"",
@@ -629,12 +695,16 @@ class EmployeeForm extends Component {
                 bloodgroup:"",
                 gender:"",
                 n_resignationdate:"",
-                resignationdate:new Date(),
+                resignationdate:"",
                 n_leavingdate:"",
-                leavingdate:new Date(),
+                leavingdate:"",
                 Emergencycontactname:"",
                 Emergencycontactnumber:"",
                 Emergencycontactrelationship:"",
+                shift:'',
+                Bankname:'',
+                Bankaccountnumber:'',
+                IFSCcode:'',
                 Id:"",
                 selectedOption:null});
               this.getAllUserDetails();
@@ -648,9 +718,10 @@ class EmployeeForm extends Component {
 
   updateFunction(e)
   {
-    console.log(this.state.firstname,this.state.lastname,this.state.Id);
+   // console.log(this.state.firstname,this.state.lastname,this.state.Id);
     e.preventDefault();
-    console.log(this.state.firstname,this.state.lastname,this.state.Id);
+   // console.log(this.state.firstname,this.state.lastname,this.state.Id);
+   console.log("LeavingDate=="+this.state.n_leavingdate);
     if (this.validateForm())   //----validation---
     {
       console.log(this.state.firstname,this.state.lastname,this.state.Id);
@@ -677,10 +748,11 @@ class EmployeeForm extends Component {
           AADHAAR:this.state.aadhernumber,
           PF_UAN:this.state.uannumber,
           PassportNo:this.state.passportnumber,
+          ESI:this.state.esi,
           Active:this.state.employeeactive,
           email:this.state.companyemail,
           personalEmailId:this.state.personalemail,
-          EmpID:this.state.employeeid,
+          //EmpID:this.state.employeeid,
           bloodGroup:this.state.bloodgroup,
           gender:this.state.gender,
           ResignationDate:this.state.n_resignationdate?this.state.n_resignationdate:new Date(),
@@ -688,29 +760,37 @@ class EmployeeForm extends Component {
           EmergencyContactName:this.state.Emergencycontactname,
           EmergencyContactNumber:this.state.Emergencycontactnumber,
           EmergencyContactRelationship:this.state.Emergencycontactrelationship,
-          Active:"Yes"
+          BankName:this.state.Bankname,
+          BankAccountNumber:this.state.Bankaccountnumber,
+          IFSCCode:this.state.IFSCcode,
+          Shift:this.state.shift,
+          Active:"Yes",
+          UpdatedBy:"subha",
+          UpdatedDateTime:new Date()
   };
   console.log("Uid--"+this.state.userDetails._id);
   myobj["id"] = this.state.userDetails._id;
   const requestBody = {
     query: `
-        mutation UpdateEmpDetailsById($id: ID!, $EmpID: String!, $FirstName: String!, $MiddleName: String, $LastName: String, 
+        mutation UpdateEmpDetailsById($id: ID!, $FirstName: String!, $MiddleName: String, $LastName: String, 
           $Initials: String, $FatherName: String, $SpouseName: String, $DOB: String!, $Department: String!,
           , $JoiningDate: String!, $BusinessTitle: String!, $MobileNo: String!, $AlternateContactNo: String!, $PAN: String!
-          , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $JobBand: String!, $EmploymentType: String!
+          , $AADHAAR: String!, $PF_UAN: String!, $PassportNo: String!, $ESI:String, $JobBand: String!, $EmploymentType: String!
           , $CompanyID: String!, $LeavingDate: String!, $ResignationDate: String!, $ReportingPerson: String,
           $email: String!,$personalEmailId: String!,$bloodGroup: String!,$gender: String!,
           $EmergencyContactName: String!, $EmergencyContactNumber: String!,
-               $EmergencyContactRelationship: String!, $Active: String!) 
+          $EmergencyContactRelationship: String!, $Active: String!,$UpdatedBy:String,$UpdatedDateTime:String,
+          $BankName: String!,$BankAccountNumber: String!,$IFSCCode: String!,$Shift: String!) 
         {
-          updateEmpDetailsById(Id:$id,empInput: {EmpID: $EmpID, FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
+          updateEmpDetailsById(Id:$id,empInput: {FirstName: $FirstName, MiddleName: $MiddleName, LastName: $LastName
             , Initials: $Initials, FatherName: $FatherName, SpouseName: $SpouseName, DOB: $DOB, Department: $Department
             , JoiningDate: $JoiningDate, BusinessTitle: $BusinessTitle, MobileNo: $MobileNo, AlternateContactNo: $AlternateContactNo
-            , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo
+            , PAN: $PAN, AADHAAR: $AADHAAR, PF_UAN: $PF_UAN, PassportNo: $PassportNo,ESI:$ESI,
             , JobBand: $JobBand, EmploymentType: $EmploymentType, CompanyID: $CompanyID, LeavingDate: $LeavingDate
             , ResignationDate: $ResignationDate, ReportingPerson: $ReportingPerson, email: $email, personalEmailId: $personalEmailId
             , bloodGroup: $bloodGroup, gender: $gender, EmergencyContactName: $EmergencyContactName, EmergencyContactNumber: $EmergencyContactNumber
-            , EmergencyContactRelationship: $EmergencyContactRelationship, Active: $Active}) {
+            , EmergencyContactRelationship: $EmergencyContactRelationship, Active: $Active,UpdatedBy:$UpdatedBy,UpdatedDateTime:$UpdatedDateTime
+            ,BankName: $BankName,BankAccountNumber: $BankAccountNumber,IFSCCode: $IFSCCode,Shift: $Shift}) {
             _id
           
           }
@@ -753,6 +833,7 @@ class EmployeeForm extends Component {
           aadhernumber:"",
           uannumber:"",
           passportnumber:"",
+          esi:"",
           employeeactive:"",
           companyemail:"",
           personalemail:"",
@@ -760,12 +841,16 @@ class EmployeeForm extends Component {
           bloodgroup:"",
           gender:"",
           n_resignationdate:"",
-          resignationdate:new Date(),
+          resignationdate:"",
           n_leavingdate:"",
-          leavingdate:new Date(),
+          leavingdate:"",
           Emergencycontactname:"",
           Emergencycontactnumber:"",
           Emergencycontactrelationship:"",
+          shift:'',
+          Bankname:'',
+          Bankaccountnumber:'',
+          IFSCcode:'',
           Id:"",
           updateProfile:false,
           selectedOption:null
@@ -779,6 +864,11 @@ class EmployeeForm extends Component {
   
   fetchUserFullDetailById(event)
   {
+    if(this.props.match.params.id!=undefined)
+    {
+      let path = `/admin/employeeDetail/`+event.value;
+      this.props.history.push(path); 
+    }
     console.log(event);
     console.log("value=="+event.value);
 
@@ -813,6 +903,7 @@ class EmployeeForm extends Component {
                 AADHAAR
                 PF_UAN
                 PassportNo
+                ESI
                 JobBand
                 EmploymentType
                 CompanyID
@@ -827,6 +918,10 @@ class EmployeeForm extends Component {
                 EmergencyContactNumber
                 EmergencyContactRelationship
                 Active
+                BankName
+                BankAccountNumber
+                IFSCCode
+                Shift
               }
             }
           `,
@@ -881,6 +976,7 @@ class EmployeeForm extends Component {
             aadhernumber:this.state.userDetails.AADHAAR?this.state.userDetails.AADHAAR:'',
             uannumber:this.state.userDetails.PF_UAN?this.state.userDetails.PF_UAN:'',
             passportnumber:this.state.userDetails.PassportNo?this.state.userDetails.PassportNo:'',
+            esi:this.state.userDetails.ESI?this.state.userDetails.ESI:'',
             employeeactive:this.state.userDetails.Active?this.state.userDetails.Active:'',
             companyemail:this.state.userDetails.email?this.state.userDetails.email:'',
             personalemail:this.state.userDetails.personalEmailId?this.state.userDetails.personalEmailId:'',
@@ -894,6 +990,10 @@ class EmployeeForm extends Component {
             Emergencycontactname:this.state.userDetails.EmergencyContactName?this.state.userDetails.EmergencyContactName:'',
             Emergencycontactnumber:this.state.userDetails.EmergencyContactNumber?this.state.userDetails.EmergencyContactNumber:'',
             Emergencycontactrelationship:this.state.userDetails.EmergencyContactRelationship?this.state.userDetails.EmergencyContactRelationship:'',
+            Bankname:this.state.userDetails.BankName?this.state.userDetails.BankName:'',
+            Bankaccountnumber:this.state.userDetails.BankAccountNumber?this.state.userDetails.BankAccountNumber:'',
+            IFSCcode:this.state.userDetails.IFSCCode?this.state.userDetails.IFSCCode:'',
+            shift:this.state.userDetails.Shift?this.state.userDetails.Shift:''
           });
           updateId[0]=0;
           console.log("items=="+this.state.userDetails,this.state.userDetails.FirstName,this.state.userDetails.LastName);
@@ -925,6 +1025,7 @@ class EmployeeForm extends Component {
         aadhernumber:"",
         uannumber:"",
         passportnumber:"",
+        esi:"",
         employeeactive:"",
         companyemail:"",
         personalemail:"",
@@ -938,6 +1039,10 @@ class EmployeeForm extends Component {
         Emergencycontactname:"",
         Emergencycontactnumber:"",
         Emergencycontactrelationship:"",
+        shift:'',
+        Bankname:'',
+        Bankaccountnumber:'',
+        IFSCcode:'',
         Id:"",
         updateProfile:false
       });
@@ -1140,6 +1245,18 @@ class EmployeeForm extends Component {
       }
     }
 
+    if (!this.state.esi) {
+      formIsValid = false;
+      errors["esi"] = "*Please enter ESI Number.";
+    }
+
+    if (this.state.esi != "") {
+      if (!this.state.esi.match(/^[0-9]{17}$/)) {
+        formIsValid = false;
+        errors["esi"] = "*Please enter valid ESI Number.";
+      }
+    }
+
     if (!this.state.employeeactive) {
       formIsValid = false;
       errors["employeeactive"] = "*Please Select Employee Active.";
@@ -1169,10 +1286,10 @@ class EmployeeForm extends Component {
       }
     }
 
-    if (!this.state.employeeid) {
-      formIsValid = false;
-      errors["employeeid"] = "*Please enter Employee ID.";
-    }
+    // if (!this.state.employeeid) {
+    //   formIsValid = false;
+    //   errors["employeeid"] = "*Please enter Employee ID.";
+    // }
 
     // if (this.state.employeeid != "") {
     //   if (!this.state.employeeid.match(/^[a-zA-Z]{1}[0-9]{7}$/)) {
@@ -1226,6 +1343,48 @@ class EmployeeForm extends Component {
         errors["Emergencycontactnumber"] = "*Please enter valid Emergency contact number.";
       }
     }
+
+    if (!this.state.Bankname) {
+      formIsValid = false;
+      errors["Bankname"] = "*Please enter Bank Name.";
+    }
+
+    if (this.state.Bankname != "") {
+      if (!this.state.Bankname.match(/^[a-zA-Z]*$/)) {
+        formIsValid = false;
+        errors["Bankname"] = "*Please enter alphabet characters only.";
+      }
+    }
+
+    if (!this.state.Bankaccountnumber) {
+      formIsValid = false;
+      errors["Bankaccountnumber"] = "*Please enter Bank Account number.";
+    }
+
+    if (this.state.Bankaccountnumber != "") {
+      if (!this.state.Bankaccountnumber.match(/^[0-9]{15}$/)) {
+        formIsValid = false;
+        errors["Bankaccountnumber"] = "*Please enter valid Bank Account number.";
+      }
+    }
+
+    if (!this.state.IFSCcode) {
+      formIsValid = false;
+      errors["IFSCcode"] = "*Please enter IFSC Code.";
+    }
+
+    if (this.state.IFSCcode != "") {
+      if (!this.state.IFSCcode.match(/^[A-Z|a-z]{4}[0][\d]{6}$/)) {
+        formIsValid = false;
+        errors["IFSCcode"] = "*Please enter valid IFSC Code.";
+      }
+    }
+
+    if (!this.state.shift) {
+      formIsValid = false;
+      errors["shift"] = "*Please select Shift.";
+    }
+
     // if (!this.state.resignationdate) {
     //   formIsValid = false;
     //   errors["resignationdate"] = "*Please enter Resignation Date.";
@@ -1248,7 +1407,7 @@ class EmployeeForm extends Component {
   //-------------------------
   render() {
    
-    var {items,firstnameval,configDetails,reportingpersonDetails} = this.state;
+    var {items,firstnameval,configDetails,reportingpersonDetails,disable_state} = this.state;
     let button;
     const options = [
       { value: 'chocolate', label: 'Chocolate' },
@@ -1258,22 +1417,32 @@ class EmployeeForm extends Component {
     
     
     //console.log("updateProfile=="+this.state.updateProfile);
+    var classname="hidden";
+
     if(this.state.updateProfile==false){
-      button=<Button bsStyle="info"  pullRight fill onClick={this.submitFunction}>
-               Save Profile
-              </Button>
+      button=
+        <div className={this.state.hideitems.saveProBtn?classname:""}>
+          <Button bsStyle="info"  pullRight fill name="saveProBtn" onClick={this.submitFunction}>
+            Save Profile
+          </Button>
+        </div>
     }
     else{
-      button=<Button bsStyle="info" pullRight fill  onClick={this.updateFunction}>
-                Update Profile
-             </Button>
+      button=
+      <div className={this.state.hideitems.updateProBtn?classname:""}>
+        <Button bsStyle="info" pullRight fill name="updateProBtn" onClick={this.updateFunction} >
+          Update Profile
+        </Button>
+      </div>
     }
     //-----redux--------
     //const employeeDetails = useSelector(state=>state.EmployeeDetails);
     //const dispatch = useDispatch();
     //----------------
-        
-   
+    
+    
+
+
     return (
       <div className="content">
         <Grid fluid>
@@ -1296,7 +1465,8 @@ class EmployeeForm extends Component {
                           ))}
                         </select>
                      </div> */}
-                     <div className="col-md-3">
+                     {/* <div className="col-md-3"> */}
+                     <div className={this.state.hideitems.emplist?"col-md-3 "+classname:"col-md-3"}>
                        {/* <EmpList/> */}
                        <Select
                         value={this.state.selectedOption}
@@ -1306,33 +1476,35 @@ class EmployeeForm extends Component {
                       />
                      </div>
                    </div>
-                   <hr></hr>
+                   <hr className={this.state.hideitems.emplist?"hidden":""} ></hr>
                    <div className="row">
-                     <div className="col-md-3"><label>First Name:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="firstname" value={this.state.firstname}  onChange={this.handleInputChange} />
+                     {/* <div className="col-md-3"> */}
+                     <div className={this.state.hideitems.firstname?"col-md-3 "+classname:"col-md-3"} > 
+                       <label>First Name:</label>
+                        <input  type="text" autoComplete="off" id="firstname" className="form-control Capitalize_class" name="firstname" value={this.state.firstname}  onChange={this.handleInputChange} disabled={disable_state} />
                         <div className="errorMsg">{this.state.errors.firstname}</div>
                      </div>
                      <div className="col-md-3"><label>Middle Name:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="middlename" value={this.state.middlename}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="middlename" value={this.state.middlename}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.middlename}</div>
                      </div>
                      <div className="col-md-3"><label>Last Name:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="lastname" value={this.state.lastname}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="lastname" value={this.state.lastname}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.lastname}</div>
                      </div>
                      <div className="col-md-3"><label>Initial:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="initial" value={this.state.initial}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="initial" value={this.state.initial}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.initial}</div>
                      </div>
                    </div>
                    <hr></hr>
                    <div className="row">
                      <div className="col-md-3"><label>Father Name:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="fathername" value={this.state.fathername}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="fathername" value={this.state.fathername}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.fathername}</div>
                      </div>
                      <div className="col-md-3"><label>Spouse Name:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="spousename" value={this.state.spousename}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="spousename" value={this.state.spousename}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.spousename}</div>
                      </div>
                      <div className="col-md-3"><label>Date of Birth:</label>
@@ -1342,11 +1514,12 @@ class EmployeeForm extends Component {
                        // onSelect={this.handleSelect} //when day is clicked
                         onChange={this.handleDateChange} //only when value has changed
                         name="dob"
+                        disabled={disable_state}
                       />
                       <div className="errorMsg">{this.state.errors.dob}</div>
                      </div>
                      <div className="col-md-3"><label>Entity:</label>
-                      <select className="form-control" name="companyid" value={this.state.companyid} onChange={this.handleInputChange}>
+                      <select className="form-control" name="companyid" value={this.state.companyid} onChange={this.handleInputChange} disabled={disable_state}>
                         <option key='0' value=''>- Choose Entity -</option>
                           {configDetails.map(data=>(
                             data.CompanyId?<option key={data.CompanyId} value={data.CompanyId}>
@@ -1361,7 +1534,7 @@ class EmployeeForm extends Component {
                    <hr></hr>
                    <div className="row">
                      <div className="col-md-3"><label>Department:</label>
-                        <select className="form-control" name="department" onChange={this.handleInputChange} value={this.state.department}>
+                        <select className="form-control" name="department" onChange={this.handleInputChange} value={this.state.department} disabled={disable_state}>
                         <option key='0' value=''>- Choose Department -</option>
                           {configDetails.map(data=>(
                             data.Department?<option key={data.Department} value={data.Department}>
@@ -1372,7 +1545,7 @@ class EmployeeForm extends Component {
                         <div className="errorMsg">{this.state.errors.department}</div>
                      </div>
                      <div className="col-md-3"><label>Designation:</label>
-                        <select className="form-control" name="businesstitle" onChange={this.handleInputChange} value={this.state.businesstitle}>
+                        <select className="form-control" name="businesstitle" onChange={this.handleInputChange} value={this.state.businesstitle} disabled={disable_state}>
                         <option key='0' value=''>- Choose Designation -</option>
                           {configDetails.map(data=>(
                             data.BusinessTitle && data.DepID == this.state.department?<option key={data.BusinessTitle} value={data.BusinessTitle}>
@@ -1385,7 +1558,7 @@ class EmployeeForm extends Component {
                      </div>
                      <div className="col-md-3"><label>Reporting Person:</label>
                         {/* <input type="text" className="form-control" name="reportingperson" value={this.state.reportingperson}  onChange={this.handleInputChange} /> */}
-                        <select className="form-control" name="reportingperson" onChange={this.handleInputChange} value={this.state.reportingperson}>
+                        <select className="form-control" name="reportingperson" onChange={this.handleInputChange} value={this.state.reportingperson} disabled={disable_state}>
                         <option key='0' value=''>- Choose Reporting Person -</option>
                           {reportingpersonDetails.map(data=>(
                             data.EmpID?<option key={data.EmpID} value={data.EmpID}>
@@ -1396,7 +1569,7 @@ class EmployeeForm extends Component {
                         <div className="errorMsg">{this.state.errors.reportingperson}</div>
                      </div>
                      <div className="col-md-3"><label>Employment Type:</label>
-                        <select className="form-control" name="employmentType" onChange={this.handleInputChange} value={this.state.employmentType}>
+                        <select className="form-control" name="employmentType" onChange={this.handleInputChange} value={this.state.employmentType} disabled={disable_state}>
                         <option key='0' value=''>- Choose Employment Type -</option>
                          {configDetails.map(data=>(
                             data.EmploymentType?<option key={data.EmploymentType} value={data.EmploymentType}>
@@ -1411,7 +1584,7 @@ class EmployeeForm extends Component {
                    <div className="row">
                      <div className="col-md-3"><label>Job Band:</label>
                         {/* <input type="text" className="form-control" name="jobband " value={this.state.jobband}  onChange={this.handleInputChange} /> */}
-                        <select className="form-control" name="jobband" onChange={this.handleInputChange} value={this.state.jobband}>
+                        <select className="form-control" name="jobband" onChange={this.handleInputChange} value={this.state.jobband} disabled={disable_state}>
                         <option key='0' value=''>- Choose Job Band -</option>
                          {configDetails.map(data=>(
                             data.JobBand?<option key={data.JobBand} value={data.JobBand}>
@@ -1428,42 +1601,47 @@ class EmployeeForm extends Component {
                        // onSelect={this.handleSelect} //when day is clicked
                         onChange={this.handleDateChange2} //only when value has changed
                         name="joiningdate"
+                        disabled={disable_state}
                         />
                         <div className="errorMsg">{this.state.errors.joiningdate}</div>
                      </div>
                      <div className="col-md-3"><label>Mobile Number:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="mobilenumber" value={this.state.mobilenumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="mobilenumber" value={this.state.mobilenumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.mobilenumber}</div>
                      </div>
                      <div className="col-md-3"><label>Alternate Number:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="alternatenumber" value={this.state.alternatenumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="alternatenumber" value={this.state.alternatenumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.alternatenumber}</div>
                      </div>
                    </div>
                    <hr></hr>
                    <div className="row">
                      <div className="col-md-3"><label>PAN Number:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="pannumber" value={this.state.pannumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="pannumber" value={this.state.pannumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.pannumber}</div>
                      </div>
                      <div className="col-md-3"><label>AADHAR Number:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="aadhernumber" value={this.state.aadhernumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="aadhernumber" value={this.state.aadhernumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.aadhernumber}</div>
                      </div>
                      <div className="col-md-3"><label>UAN (PF):</label>
-                        <input type="text" autoComplete="off" className="form-control" name="uannumber" value={this.state.uannumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="uannumber" value={this.state.uannumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.uannumber}</div>
                      </div>
                      <div className="col-md-3"><label>Passport Number:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="passportnumber" value={this.state.passportnumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="passportnumber" value={this.state.passportnumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.passportnumber}</div>
                      </div>
                    </div>
                    <hr></hr>
                    <div className="row">
+                     <div className="col-md-3"><label>ESI Number:</label>
+                        <input type="text" autoComplete="off" className="form-control" name="esi" value={this.state.esi}  onChange={this.handleInputChange} disabled={disable_state}/>
+                        <div className="errorMsg">{this.state.errors.esi}</div>
+                     </div>
                      <div className="col-md-3"><label>Employee Status:</label>
                         {/* <input type="text" autoComplete="off" className="form-control" name="employeeactive " value={this.state.employeeactive}  onChange={this.handleInputChange} /> */}
-                        <select className="form-control" name="employeeactive" onChange={this.handleInputChange} value={this.state.employeeactive}>
+                        <select className="form-control" name="employeeactive" onChange={this.handleInputChange} value={this.state.employeeactive} disabled={disable_state}>
                         <option key='0' value=''>- Choose -</option>
                         <option key='1' value='Yes'>Active</option>
                         <option key='2' value='No'>Inactive</option>
@@ -1471,27 +1649,26 @@ class EmployeeForm extends Component {
                         <div className="errorMsg">{this.state.errors.employeeactive}</div>
                      </div>
                      <div className="col-md-3"><label>Company Email:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="companyemail" value={this.state.companyemail}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="companyemail" value={this.state.companyemail}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.companyemail}</div>
                      </div>
                      <div className="col-md-3"><label>Personal Email:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="personalemail" value={this.state.personalemail}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="personalemail" value={this.state.personalemail}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.personalemail}</div>
                      </div>
-                     <div className="col-md-3"><label>Employee ID:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="employeeid" value={this.state.employeeid}  onChange={this.handleInputChange} />
+                     {/* <div className="col-md-3"><label>Employee ID:</label>
+                        <input type="text" autoComplete="off" className="form-control" name="employeeid" value={this.state.employeeid}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.employeeid}</div>
-                     </div>
+                     </div> */}
                    </div>
                    <hr></hr>
                    <div className="row">
                      <div className="col-md-3"><label>Blood Group:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="bloodgroup" value={this.state.bloodgroup}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="bloodgroup" value={this.state.bloodgroup}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.bloodgroup}</div>
                      </div>
                      <div className="col-md-3"><label>Gender:</label>
-                        {/* <input type="text" autoComplete="off" className="form-control" name="gender" value={this.state.gender}  onChange={this.handleInputChange} /> */}
-                        <select className="form-control" name="gender" onChange={this.handleInputChange} value={this.state.gender}>
+                        <select className="form-control" name="gender" onChange={this.handleInputChange} value={this.state.gender} disabled={disable_state}>
                         <option key='0' value=''>- Choose Gender -</option>
                         <option key='1' value='Male'>Male</option>
                         <option key='2' value='Female'>Female</option>
@@ -1506,6 +1683,7 @@ class EmployeeForm extends Component {
                         onChange={this.handleDateChange3} //only when value has changed
                         name="resignationdate"
                         autoComplete="off"
+                        disabled={disable_state}
                         />
                         <div className="errorMsg">{this.state.errors.resignationdate}</div>
                      </div>
@@ -1517,6 +1695,7 @@ class EmployeeForm extends Component {
                         name="leavingdate"
                         autoComplete="off"
                         minDate={moment(new Date('02-01-1970'))}
+                        disabled={disable_state}
                         />
                         <div className="errorMsg">{this.state.errors.leavingdate}</div>
                      </div>
@@ -1524,16 +1703,39 @@ class EmployeeForm extends Component {
                    <hr></hr>
                    <div className="row">
                    <div className="col-md-3"><label>Emergency Contact Name:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Emergencycontactname" value={this.state.Emergencycontactname}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Emergencycontactname" value={this.state.Emergencycontactname}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.Emergencycontactname}</div>
                      </div>
                      <div className="col-md-3"><label>Emergency Contact Number:</label>
-                        <input type="text" autoComplete="off" className="form-control" name="Emergencycontactnumber" value={this.state.Emergencycontactnumber}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control" name="Emergencycontactnumber" value={this.state.Emergencycontactnumber}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.Emergencycontactnumber}</div>
                      </div>
                      <div className="col-md-3"><label>Emergency Contact Relationship:</label>
-                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Emergencycontactrelationship" value={this.state.Emergencycontactrelationship}  onChange={this.handleInputChange} />
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Emergencycontactrelationship" value={this.state.Emergencycontactrelationship}  onChange={this.handleInputChange} disabled={disable_state}/>
                         <div className="errorMsg">{this.state.errors.Emergencycontactrelationship}</div>
+                     </div>
+                     <div className="col-md-3"><label>Shift:</label>
+                        <select className="form-control" name="shift" onChange={this.handleInputChange} value={this.state.shift} disabled={disable_state}>
+                        <option key='0' value=''>- Choose Shift -</option>
+                        <option key='1' value='Day'>Day</option>
+                        <option key='2' value='Night'>Night</option>
+                        </select>
+                        <div className="errorMsg">{this.state.errors.shift}</div>
+                     </div>
+                   </div>
+                   <hr></hr>
+                   <div className="row">
+                   <div className="col-md-3"><label>Bank Name:</label>
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="Bankname" value={this.state.Bankname}  onChange={this.handleInputChange} disabled={disable_state}/>
+                        <div className="errorMsg">{this.state.errors.Bankname}</div>
+                     </div>
+                     <div className="col-md-3"><label>Bank Account Number:</label>
+                        <input type="text" autoComplete="off" className="form-control" name="Bankaccountnumber" value={this.state.Bankaccountnumber}  onChange={this.handleInputChange} disabled={disable_state}/>
+                        <div className="errorMsg">{this.state.errors.Bankaccountnumber}</div>
+                     </div>
+                     <div className="col-md-3"><label>IFSC Code:</label>
+                        <input type="text" autoComplete="off" className="form-control Capitalize_class" name="IFSCcode" value={this.state.IFSCcode}  onChange={this.handleInputChange} disabled={disable_state}/>
+                        <div className="errorMsg">{this.state.errors.IFSCcode}</div>
                      </div>
                    </div>
                    

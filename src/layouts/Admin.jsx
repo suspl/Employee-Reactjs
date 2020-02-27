@@ -1,20 +1,4 @@
-/*!
 
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
@@ -29,6 +13,8 @@ import { style } from "variables/Variables.jsx";
 import routes from "routes.js";
 
 import image from "assets/img/sidebar-3.jpg";
+import "../assets/css/custom_css.css";
+
 
 class Admin extends Component {
   constructor(props) {
@@ -176,7 +162,7 @@ class Admin extends Component {
         <Sidebar {...this.props} routes={routes} image={this.state.image}
         color={this.state.color}
         hasImage={this.state.hasImage}/>
-        <div id="main-panel" className="main-panel" ref="mainPanel">
+        <div id="main-panel" className="main-panel mainpanelbackcolor" ref="mainPanel">
           <AdminNavbar
             {...this.props}
             brandText={this.getBrandText(this.props.location.pathname)}

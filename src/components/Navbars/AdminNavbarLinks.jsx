@@ -56,7 +56,7 @@ class AdminNavbarLinks extends Component {
           <NavItem eventKey={3} href="http://localhost:3000/Home">
             Home
           </NavItem>
-          <NavItem eventKey={3} href="#">
+          <NavItem eventKey={3} href="http://localhost:3000/login">
             Log out
           </NavItem>
           
